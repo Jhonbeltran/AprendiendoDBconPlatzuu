@@ -1,0 +1,7 @@
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+
+mysql> show databases //para ver las bases de datos
+
+mysql> describe nombreTabla o mysql> desc nombreTabla//para ver que contiene la tabla
+
