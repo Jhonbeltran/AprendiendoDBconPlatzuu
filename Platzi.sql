@@ -37,13 +37,17 @@ INSERT INTO publishers (name, country)
 	VALUES ('BuhoMachine', 'Colombia');
 
 
-SELECT COUNT (*) FROM publishers--para saber la cardinalidad---
+SELECT COUNT (*) FROM publishers
+--para saber la cardinalidad---
 
-SELECT COUNT (publisher_id) FROM publishers;--tarda menos--
+SELECT COUNT (publisher_id) FROM publishers;
+--tarda menos--
 
-DELETE * FROM publishers;--para eliminar manteniendo metadata--
+DELETE * FROM publishers;
+--para eliminar manteniendo metadata--
 
-TRUNCATE publishers;--para eliminar sin mantener la metadata--
+TRUNCATE publishers;
+--para eliminar sin mantener la metadata--
 
 INSERT INTO users(name, email) VALUES
     ('Ricardo', 'ricardo@hola.com'),
@@ -87,10 +91,11 @@ INSERT INTO books(publisher_id, title, author, description, price, copies) VALUE
     (1, 'Algebra basica', 'Al Juarismi', 'Esto de encontrar X o Y, dependiendo', 13.50, 8);
 
 
-    SELECT * FROM books where book_id = 6 \G --comando usado en la teremnal para que cree tarjetas 
-    										--y se puedan leer mejor los datos--
+    SELECT * FROM books where book_id = 6 \G 
+    --comando usado en la teremnal para que cree tarjetas y se puedan leer mejor los datos--
 
-    SELECT * FROM books where book_id = 6; --normal-
+    SELECT * FROM books where book_id = 6; 
+    --normal-
 
 
 INSERT INTO actions ( book_id, user_id, action_type) VALUES 
@@ -106,6 +111,113 @@ INSERT INTO actions ( book_id, user_id, action_type) VALUES
     (4,5,'prestamo'),
     (5,2,'venta');
 
--- en algunas ocaciones necesitamos referirnos a tablas con nomsbres muy largos, para acortar dichos 
+-- en algunas ocaciones necesitamos referirnos a tablas con nombres muy largos, para acortar dichos 
 --nombres podemos usar alias o apodos para nuestras tablas 
+/*
+SELECT a.action_id AS aid,/*columna a usar en la tabla
+       b.title,			  /*columna a usar en la tabla
+       a.action_type,	  /*columna a usar en la tabla
+       u.name,			  /*columna a usar en la tabla
+--	   b.price AS price
+       IF(a.action_type= 'venta', b.price, '0') AS price
+       /*condicion para que los prestamos y las devoluciones no tengan precio
+       b.book_id AS bid,
+       IF (b.book_id IN (1,4,7,8,2), b.price * .9, b.price, b.price) AS dcto
+FROM actions AS a /*tabla pivote
+LEFT JOIN books AS b
+  ON b.book_id = a.book_id/*igualacion para comparar los datos que requiere la tabla pivote con respecto a la tabla con la que se hace el join
+LEFT JOIN users AS u
+  ON a.user_id = u.user_id
+*/
 
+
+/*IF(b.book_id IN(1,4,5,3,2,6),
+           b.price*.9,
+           b.price) AS dcto*/
+
+/*Script correcto para hacer util nuestra informacion en una tabla satelite*/
+
+  SELECT a.action_id AS aid,
+       b.title,
+       a.action_type,
+       u.name,
+       IF(a.action_type= 'venta',
+           b.price, '0') AS price
+       
+       
+FROM actions AS a
+LEFT JOIN books AS b
+  ON b.book_id = a.book_id
+LEFT JOIN users AS u
+  ON a.user_id = u.user_id
+
+
+
+/*----------------------------------*/
+
+SELECT
+	p.name,
+	b.title,
+	b.price,
+	b.copies
+FROM books AS b
+JOIN publishers AS p
+	ON b.publisher_id = p.publisher_id
+
+
+
+SELECT
+	p.publisher_id AS pid,
+	p.name,
+	SUM(b.price * b.copies)
+FROM books AS b
+JOIN publishers AS p
+	ON b.publisher_id = p.publisher_id
+GRoUP BY pid/*para que ejecute todas las lineas que contenga en este caso pid*/
+
+
+SELECT
+	p.publisher_id AS pid,
+	p.name,
+	SUM(IF(b.price<15, 0, b.price * b.copies)) AS total
+FROM books AS b
+JOIN publishers AS p
+	ON b.publisher_id = p.publisher_id
+GROUP BY pid
+
+/*asumiendo que una persona decide comprarnos todos los libros que valen menos de 15*/
+SELECT
+	p.publisher_id AS pid,
+	p.name,
+	COUNT(b.book_id) AS libros,
+	SUM(IF(b.price >=15, 1, 0)) AS mis_libros
+FROM books AS b
+LEFT JOIN publishers AS p
+	ON p.publisher_id = b.publisher_id
+GROUP BY pid
+
+
+
+SELECT
+	p.publisher_id AS pid,
+	p.name,
+	SUM(IF(b.price<15, 0, b.price * b.copies)) AS total,
+	SUM(IF(b.price<15, 0, 1)) AS libros_por_vender
+FROM books AS b
+JOIN publishers AS p
+	ON b.publisher_id = p.publisher_id
+GROUP BY pid
+
+
+
+SELECT
+	p.publisher_id AS pid,
+	p.name,
+	SUM(IF(b.price<15, 0, b.price * b.copies)) AS total,
+	SUM(IF(b.price<15, 0, 1)) AS libros_por_vender,
+	COUNT(b.book_id) AS libros
+FROM books AS b
+JOIN publishers AS p
+	ON b.publisher_id = p.publisher_id
+	WHERE b.price >15
+GROUP BY pid

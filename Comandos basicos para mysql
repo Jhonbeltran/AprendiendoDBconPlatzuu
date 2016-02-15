@@ -5,3 +5,6 @@ mysql> show databases //para ver las bases de datos
 
 mysql> describe nombreTabla o mysql> desc nombreTabla//para ver que contiene la tabla
 
+DEFAULT //dato por defecto, es peligroso por que puede romper las relaciones
+
+mysql> ORDER BY a.action_id --usado para ordenar los datos al final de uno o varios resulset
