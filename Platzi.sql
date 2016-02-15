@@ -221,3 +221,26 @@ JOIN publishers AS p
 	ON b.publisher_id = p.publisher_id
 	WHERE b.price >15
 GROUP BY pid
+
+
+ALTER TABLE users ADD COLUMN active tinyint (1) NOT NULL DEFAULT 1;
+/*para agregar una columna*/
+
+
+UPDATE users SET active = 1 WHERE user_id=9;
+
+/*usado para mantener integridad de los datos y ahorrar tiempo de encontrar las excepciones*/
+INSERT INTO users (name,email)
+	VALUES ('Andrea', 'sofia@hola.com')
+ON DUPLICATE KEY
+UPDATE 
+	active = active + 1,
+	name = CONCAT (name,' - nuevo');
+
+
+
+/* Recuerda cuidar la info de tu DB usa un limit 1 para no romper toda tu info*/
+UPDATE users SET name = 'juan'
+WHERE user_id = 5
+LIMIT 1;
+/* limit 1 para que ejecute esa accion solo en una tupla*/
